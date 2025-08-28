@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday, Rose!</title>
+<meta name="theme-color" content="#d946ef" />
+<style>
+  :root{--ink:#0b1020;--fg:#111827;--pink:#db2777;--pink-200:#fbcfe8;--pink-300:#f472b6;--rose-100:#ffe4e6;--rose-900:#9f1239}
+  *{box-sizing:border-box} html,body{height:100%}
+  [hidden]{display:none!important;}
+  body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--fg);position:relative;overflow-x:hidden;background:linear-gradient(135deg,#8b5cf6 0%,#d946ef 50%,#fb7185 100%)}
+  .vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(1200px 600px at 50% -10%,rgba(255,255,255,0),rgba(255,255,255,0) 40%,rgba(0,0,0,.12) 85%);z-index:0}
+  .shell{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:44px 16px 80px}
+  .card{background:rgba(255,255,255,.82);border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.12);padding:26px;backdrop-filter:blur(6px)}
+  h1{font-size:38px;margin:0 0 8px;text-align:center;letter-spacing:.2px;color:var(--ink)}
+  h2{font-size:24px;margin:0 0 12px} p{line-height:1.65;margin:8px 0} .center{text-align:center}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .mutebtn{background:#111827;color:#fff;border:0;border-radius:10px;padding:8px 12px;cursor:pointer}
+  input[type="text"]{width:100%;max-width:380px;font-size:18px;padding:12px 14px;border-radius:12px;outline:none;border:1px solid #f9a8d4;text-align:center}
+  .btn{appearance:none;border:0;background:var(--pink);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 10px 24px rgba(219,39,119,.35)}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .btn-ghost{appearance:none;border:1px solid var(--pink-200);background:#fff;color:#be185d;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer}
+  .footer{text-align:center;opacity:.85;color:var(--ink);font-size:12px;margin-top:16px}
+  .float-wrap{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  .float-emoji{position:absolute;bottom:-10%;animation:rise linear infinite;opacity:0}
+  @keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-115vh);opacity:0}}
+  .gift{position:relative;width:210px;height:210px;margin:0 auto}
+  .gift .box{position:absolute;inset:0;background:#f472b6;border:6px solid var(--pink);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+  .gift .ribbon{position:absolute;inset:auto 50% 0 50%;transform:translateX(-50%);width:26px;height:100%;background:var(--pink);border-radius:12px}
+  .gift .lid{position:absolute;left:50%;transform:translateX(-50%);top:-26px;width:160px;height:30px;background:var(--pink);border-radius:12px;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+  .gift .lid.open{transform:translateX(-50%) translateY(-20px) rotate(-6deg)}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px;z-index:5}
+  .modal{background:#fff;max-width:720px;width:100%;border-radius:18px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+  .slideshow{
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  background:#111;
+  /* keep a stable box height so layout doesn't jump */
+  min-height:55vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.slide{
+  /* show the entire image, no cropping */
+  width:100%;
+  height:auto;
+  max-height:55vh;          /* never exceed the slideshow height */
+  object-fit:contain;        /* <— key change from 'cover' */
+  display:block;
+  opacity:0;
+  transition:opacity .5s ease, transform .5s ease;
+  transform:none;            /* no slow zoom now since contain */
+  border-radius:18px;
+  background:#111;           /* letterbox color */
+}
+
+.slide.loaded{ opacity:1; }
+
+.placeholder{
+  display:grid;
+  place-items:center;
+  width:100%;
+  min-height:55vh;           /* match slideshow min-height */
+  color:#eee;
+}
+  .navbtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:0;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700}
+  .navbtn.left{left:10px}.navbtn.right{right:10px}
+  .dots{position:absolute;bottom:10px;left:0;right:0;display:flex;gap:6px;justify-content:center}
+  .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.6)}
+  .dot.active{background:#fff}
+  .row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+  .spacer{height:12px}
+</style>
+</head>
+<body>
+  <div class="vignette"></div>
+  <div class="float-wrap" id="floatWrap"></div>
+
+  <!-- CHANGED to relative path -->
+  <audio id="bgm" src="audio/soothing.mp3" loop preload="auto"></audio>
+
+  <div class="shell">
+    <div class="topbar">
+      <div>
+        <h1>Happy Birthday, <span id="herName">Rose</span>!</h1>
+        <div class="center" style="opacity:.85;color:var(--ink)">A tiny website with big love · <span id="dateLabel">20 Sept 2025</span></div>
+      </div>
+      <div class="controls"><button id="muteBtn" class="mutebtn">Mute</button></div>
+    </div>
+
+    <section id="step-login" class="card center">
+      <h2>Enter the Secret Code</h2>
+      <div style="opacity:.8;margin-bottom:8px">Psst… check your messages 😉</div>
+      <input id="codeInput" type="text" placeholder="Enter secret code" />
+      <div class="spacer"></div>
+      <button id="unlockBtn" class="btn" disabled>Unlock Surprise</button>
+      <div id="errorMsg" style="color:var(--rose-100);background:var(--rose-900);padding:6px 10px;border-radius:10px;display:none;margin-top:10px">Hmm… not quite. Try again! 🗝️</div>
+    </section>
+
+    <section id="step-gift" class="card center" hidden>
+      <div id="giftClick" style="cursor:pointer">
+        <div class="gift">
+          <div id="giftLid" class="lid"></div>
+          <div class="box"></div>
+          <div class="ribbon"></div>
+        </div>
+      </div>
+      <button id="openLetterBtn" class="btn">Open Letter</button>
+    </section>
+
+    <div id="letterOverlay" class="overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2 id="letterTitle">A Little Love Letter 💌</h2>
+        <div id="letterBody"></div>
+        <p class="center" style="font-weight:700;margin-top:10px">— <span id="yourName">You know who</span></p>
+        <div class="row" style="justify-content:flex-end;margin-top:12px">
+          <button id="closeLetter" class="btn-ghost">Close</button>
+          <button id="nextFromLetter" class="btn" style="margin-left:8px">Next Surprise</button>
+        </div>
+      </div>
+    </div>
+
+    <section id="step-audio" class="card center" hidden>
+      <h2>A Song for You</h2>
+      <div style="opacity:.85;margin-bottom:8px">Hit play and let the moment sink in 🎵</div>
+      <!-- CHANGED to relative path -->
+      <audio id="song" src="audio/happy-birthday.mp3" controls style="width:100%"></audio>
+      <div class="spacer"></div>
+      <button id="toMemories" class="btn">Memory Lane</button>
+    </section>
+
+    <section id="step-memories" class="card" hidden>
+      <div class="topbar" style="margin-bottom:10px">
+        <h2>Memory Lane</h2>
+        <div style="opacity:.85;color:var(--ink)">Swipe / Click arrows</div>
+      </div>
+      <div class="slideshow">
+        <div id="placeholder" class="placeholder">Loading…</div>
+        <img id="slide" class="slide" alt="Memory 1" />
+        <button class="navbtn left" id="prevBtn">◀</button>
+        <button class="navbtn right" id="nextBtn">▶</button>
+        <div id="dots" class="dots"></div>
+      </div>
+      <div class="center" style="margin-top:14px">
+        <button id="restartBtn" class="btn-ghost">Restart Surprises</button>
+      </div>
+    </section>
+
+    <div class="footer">Made with ❤️ by <span id="yourName2">You know who</span> · <span id="dateLabel2">20 Sept 2025</span></div>
+  </div>
+
+<script>
+const CONFIG = {
+  secretCode:"25062025",
+  herName:"Rose",
+  yourName:"You know who",
+  dateLabel:"20 Sept 2025",
+  letterTitle:"A Little Love Letter 💌",
+  letterBody:`Happy Birthday, my love! On this special day, I just want to remind you how much light you bring into my life. I adore your smile, your kindness, and the way you make ordinary moments feel magical. Here’s a small treasure trail of surprises, made just for you. I hope it makes you smile as much as you make me smile every day.
+
+Forever yours,`,
+  // CHANGED to relative paths
+  bgAudioUrl:"audio/soothing.mp3",
+  audioUrl:"audio/happy-birthday.mp3",
+  photos:[
+    "images/slide1.png","images/slide2.png","images/slide3.png","images/slide4.png",
+    "images/slide5.png","images/slide6.png","images/slide7.png","images/slide8.png","images/slide9.png"
+  ],
+};
+
+const $ = s => document.querySelector(s);
+
+const stepLogin=$("#step-login"), stepGift=$("#step-gift"), stepAudio=$("#step-audio"), stepMem=$("#step-memories");
+const codeInput=$("#codeInput"), unlockBtn=$("#unlockBtn"), errorMsg=$("#errorMsg");
+const giftClick=$("#giftClick"), giftLid=$("#giftLid"), openLetterBtn=$("#openLetterBtn");
+const letterOverlay=$("#letterOverlay"), closeLetter=$("#closeLetter"), nextFromLetter=$("#nextFromLetter");
+const muteBtn=$("#muteBtn"), bgm=$("#bgm"), song=$("#song");
+const herName=$("#herName"), yourName=$("#yourName"), yourName2=$("#yourName2");
+const dateLabel=$("#dateLabel"), dateLabel2=$("#dateLabel2"), letterTitle=$("#letterTitle"), letterBody=$("#letterBody");
+const toMemories=$("#toMemories"), restartBtn=$("#restartBtn");
+const placeholder=$("#placeholder"), slide=$("#slide"), dots=$("#dots"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn");
+
+herName.textContent=CONFIG.herName; yourName.textContent=CONFIG.yourName; yourName2.textContent=CONFIG.yourName;
+dateLabel.textContent=CONFIG.dateLabel; dateLabel2.textContent=CONFIG.dateLabel;
+bgm.src=CONFIG.bgAudioUrl; song.src=CONFIG.audioUrl;
+letterTitle.textContent=CONFIG.letterTitle;
+letterBody.innerHTML=CONFIG.letterBody.split("\n\n").map(p=>`<p>${p.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`).join("");
+
+(function makeFloaters(){
+  const emojis=["💖","✨","🐱","🌼","🌺","🌟","😺","🐾"], wrap=document.getElementById("floatWrap");
+  for(let i=0;i<30;i++){ const s=document.createElement("span"); s.className="float-emoji";
+    s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left=(Math.random()*100)+"%"; s.style.fontSize=(16+Math.random()*22)+"px";
+    s.style.animationDelay=(Math.random()*6)+"s"; s.style.animationDuration=(12+Math.random()*10)+"s";
+    wrap.appendChild(s);
+  }
+})();
+
+function show(el){ (typeof el==="string"?document.getElementById(el):el).hidden=false; }
+function hide(el){ (typeof el==="string"?document.getElementById(el):el).hidden=true; }
+function goStep(name){ hide(stepLogin); hide(stepGift); hide(stepAudio); hide(stepMem);
+  if(name==="login")show(stepLogin); if(name==="gift")show(stepGift);
+  if(name==="audio")show(stepAudio); if(name==="memories")show(stepMem);
+  if (leavingMemories) stopAuto();
+}
+
+function enterMemories(){
+  idx = 0;                                        // start at first photo
+  loaded = Array(CONFIG.photos.length).fill(false);
+  errored = Array(CONFIG.photos.length).fill(false);
+  renderDots();
+  showImage();                                     // loads slide1 immediately
+  startAuto();
+  goStep("memories");                              // then show the section
+}
+
+let muted=false; muteBtn.addEventListener("click",()=>{ muted=!muted; bgm.muted=muted; muteBtn.textContent=muted?"Unmute":"Mute"; });
+
+let unlocked=false;
+codeInput.addEventListener("input",()=>{ const ok=codeInput.value.trim()===CONFIG.secretCode; unlockBtn.disabled=!ok; errorMsg.style.display="none"; });
+codeInput.addEventListener("keydown",async e=>{ if(e.key==="Enter"&&codeInput.value.trim()===CONFIG.secretCode){ unlocked=true; await startBgm(); goStep("gift"); }});
+unlockBtn.addEventListener("click",async ()=>{ if(codeInput.value.trim()===CONFIG.secretCode){ unlocked=true; await startBgm(); goStep("gift"); } else { errorMsg.style.display="inline-block"; }});
+async function startBgm(){ try{ bgm.volume=0.25; bgm.muted=muted; await bgm.play(); }catch(e){} }
+
+function openLetterModal(){ if(!unlocked)return; letterOverlay.hidden=false; giftLid.classList.add("open"); }
+function closeLetterModal(){ letterOverlay.hidden=true; }
+giftClick.addEventListener("click",openLetterModal); openLetterBtn.addEventListener("click",openLetterModal);
+letterOverlay.addEventListener("click",e=>{ if(e.target===letterOverlay) closeLetterModal(); });
+closeLetter.addEventListener("click",closeLetterModal);
+nextFromLetter.addEventListener("click",()=>{ closeLetterModal(); goStep("audio"); });
+
+toMemories.addEventListener("click", enterMemories);
+restartBtn.addEventListener("click",()=>{ song.pause(); song.currentTime=0; giftLid.classList.remove("open");   idx = 0; goStep("gift"); });
+
+let idx=0, loaded=Array(CONFIG.photos.length).fill(false), errored=Array(CONFIG.photos.length).fill(false), timer=null;
+function renderDots(){ dots.innerHTML=""; CONFIG.photos.forEach((_,i)=>{ const d=document.createElement("span"); d.className="dot"+(i===idx?" active":""); dots.appendChild(d); }); }
+function showImage(){ const src=CONFIG.photos[idx]; placeholder.style.display=(!loaded[idx]&&!errored[idx])?"grid":"none"; slide.classList.remove("loaded"); slide.alt=`Memory ${idx+1}`; slide.src=src; }
+slide.addEventListener("load",()=>{ loaded[idx]=true; placeholder.style.display="none"; slide.classList.add("loaded"); renderDots(); });
+slide.addEventListener("error",()=>{ errored[idx]=true; placeholder.textContent="Image not found"; placeholder.style.color="#fca5a5"; placeholder.style.display="grid"; renderDots(); });
+function next(n=1){ idx=(idx+n+CONFIG.photos.length)%CONFIG.photos.length; showImage(); }
+prevBtn.addEventListener("click",()=>next(-1)); nextBtn.addEventListener("click",()=>next(1));
+function startAuto(){ if(timer) clearInterval(timer); if(CONFIG.photos.length>1){ timer=setInterval(()=>next(1),3000); } }
+function stopAuto(){ if(timer) clearInterval(timer); }
+["mouseenter","touchstart"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,stopAuto,{passive:true}); });
+["mouseleave","touchend"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,startAuto,{passive:true}); });
+
+goStep("login"); idx = 0; renderDots(); showImage(); startAuto();
+</script>
+</body>
+</html>
