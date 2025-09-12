@@ -249,10 +249,11 @@ function stopAuto(){ if(timer) clearInterval(timer); }
 ["mouseenter","touchstart"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,stopAuto,{passive:true}); });
 ["mouseleave","touchend"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,startAuto,{passive:true}); });
 
-goStep("login"); idx = 0; renderDots(); showImage(); 
+goStep("login"); idx = 0; renderDots(); showImage(); startAuto();
 </script>
 </body>
 </html>
+
 
 
 
