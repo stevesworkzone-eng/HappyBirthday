@@ -87,7 +87,7 @@
   <div class="shell">
     <div class="topbar">
       <div>
-        <h1>Happy Birthday, <span id="herName">Rooo</span>!</h1>
+        <h1>Happy Birthday <span id="herName">Rooo</span>!</h1>
         <div class="center" style="opacity:.85;color:var(--ink)">A tiny website with big love · <span id="dateLabel">20 Sept 2025</span></div>
       </div>
       <div class="controls"><button id="muteBtn" class="mutebtn">Mute</button></div>
@@ -249,10 +249,11 @@ function stopAuto(){ if(timer) clearInterval(timer); }
 ["mouseenter","touchstart"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,stopAuto,{passive:true}); });
 ["mouseleave","touchend"].forEach(evt=>{ document.querySelector(".slideshow").addEventListener(evt,startAuto,{passive:true}); });
 
-goStep("login"); idx = 0; renderDots(); showImage(); startAuto();
+goStep("login"); idx = 0; renderDots(); showImage(); 
 </script>
 </body>
 </html>
+
 
 
 
